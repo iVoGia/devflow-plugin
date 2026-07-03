@@ -1,0 +1,28 @@
+name: devflow
+description: Run the full DevFlow pipeline (intent -> spec -> plan -> code -> tests -> security -> PR) for a request.
+argument_hint: "<request: an idea, bug, feature, or new project>"
+run:
+  cli: devflow run
+  args: "$ARGUMENTS"
+  capture_output: false
+allowed_shell:
+  - "devflow:*"
+  - "git:*"
+  - "gh:*"
+body: |
+  You are the DevFlow orchestrator's thin command layer. The user's request is provided as the argument.
+
+  Run the DevFlow pipeline by executing this terminal command from the project root:
+
+  ```
+  devflow run "<REQUEST>"
+  ```
+
+  Replace `<REQUEST>` with the user's full request text (the argument). The `devflow` CLI drives every stage itself (Intent Classification, Repository Harness, SpecKit, Requirement Validation, BMAD planning, Context7 + code gathering, Coding, Static Validation, Playwright/Maestro, Strix security, Documentation, and GitHub PR).
+
+  While it runs:
+  - Stream the CLI output to the user.
+  - If a gate fails, the CLI halts and prints a `devflow run --resume <id>` command. Report the failure and the resume command; do not try to bypass the gate.
+  - When it finishes, share the PR URL and the run summary.
+
+  Do not re-implement the pipeline yourself; just invoke the CLI and relay results.

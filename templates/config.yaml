@@ -1,0 +1,59 @@
+# DevFlow configuration. See README for all options.
+
+# Which agent backend drives LLM stages: claude | cursor | api
+agent: claude
+
+# Where the knowledge harness lives (relative to project root).
+knowledgeDir: .devflow/knowledge
+
+stages:
+  intent:
+    enabled: true
+  harness:
+    enabled: true
+  speckit:
+    enabled: true
+    integration: claude # passed to `specify init --ai <value>`
+  validate:
+    enabled: true
+    gate: true
+  bmad:
+    enabled: true
+    modules: bmm
+    tools: claude-code
+  context:
+    enabled: true
+  coding:
+    enabled: true
+  static:
+    enabled: true
+    gate: true
+    # Leave commands empty to auto-detect from package.json scripts.
+    unit: "" # e.g. "npm test"
+    integration: "" # e.g. "npm run test:integration"
+    lint: "" # e.g. "npm run lint"
+    format: "" # e.g. "npm run format:check"
+  e2e:
+    enabled: true
+    engine: none # playwright | maestro | none
+    cmd: "" # override, e.g. "npx playwright test"
+    gate: true
+  strix:
+    enabled: true
+    mode: quick # quick | deep
+    gate: true
+  docs:
+    enabled: true
+  pr:
+    enabled: true
+    base: main
+    draft: false
+    autoMerge: false
+
+context7:
+  enabled: true
+  baseUrl: https://context7.com/api/v2
+
+agentCommand:
+  claude: claude
+  cursor: cursor-agent

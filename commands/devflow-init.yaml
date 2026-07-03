@@ -1,0 +1,19 @@
+name: devflow-init
+description: Initialize DevFlow in this project (scaffold config, knowledge harness, and IDE commands).
+argument_hint: ""
+run:
+  cli: devflow init
+  args: ""
+  capture_output: false
+allowed_shell:
+  - "devflow:*"
+body: |
+  Initialize DevFlow in the current project by running:
+
+  ```
+  devflow init
+  ```
+
+  This scaffolds `.devflow/config.yaml`, the knowledge harness under `.devflow/knowledge/` (business.md, architecture.md, coding-rules.md), and regenerates the slash commands for Cursor, Claude Code and GitHub Copilot.
+
+  After it runs, tell the user to fill in the three knowledge files and to run `devflow doctor` to verify prerequisites (agent CLI, specify, bmad, Docker + strix, gh, and the required API keys).

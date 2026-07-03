@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+
+# DevFlow run artifacts (created inside target projects)
+.devflow/runs/
+
+# Env
+.env
+.env.local
+
+# Local scratch / smoke-test dir
+.smoke/
