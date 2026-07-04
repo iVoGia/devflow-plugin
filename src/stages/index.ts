@@ -3,7 +3,9 @@ import { codingStage } from "./coding.js";
 import { contextStage } from "./context.js";
 import { docsStage } from "./docs.js";
 import { e2eStage } from "./e2e.js";
+import { discoverStage } from "./discover.js";
 import { harnessStage } from "./harness.js";
+import { intakeStage } from "./intake.js";
 import { intentStage } from "./intent.js";
 import { prStage } from "./pr.js";
 import { speckitStage } from "./speckit.js";
@@ -16,6 +18,8 @@ import type { Stage } from "./types.js";
 export const allStages: Stage[] = [
   intentStage,
   harnessStage,
+  discoverStage,
+  intakeStage,
   speckitStage,
   validateStage,
   bmadStage,

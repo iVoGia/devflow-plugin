@@ -4,7 +4,13 @@ import { run } from "../util/exec.js";
 import which from "../util/which.js";
 import { logger } from "../logger.js";
 import { findFirst } from "../util/fsx.js";
-import type { Stage } from "./types.js";
+import type { Stage, StageContext } from "./types.js";
+
+function profileBlock(ctx: StageContext): string {
+  const p = ctx.shared.repoProfile;
+  if (!p) return "";
+  return `\n\nDetected repository profile:\n${JSON.stringify(p, null, 2)}`;
+}
 
 /**
  * SpecKit stage: ensures Spec Kit is bootstrapped, then drives the agent
@@ -67,7 +73,7 @@ export const speckitStage: Stage = {
       : "";
     logger.step("Authoring specification via agent");
     await ctx.agent.prompt(
-      `Using the Spec Kit workflow (the /speckit.specify command and its templates), create a complete specification for the following ${ctx.shared.intent ?? "feature"} request. Write the spec to the specs/ directory as spec.md following Spec Kit conventions. Be concrete about scope, user stories, and acceptance criteria.\n\nRequest:\n"""\n${ctx.request}\n"""${knowledge}`,
+      `Using the Spec Kit workflow (the /speckit.specify command and its templates), create a complete specification for the following ${ctx.shared.intent ?? "feature"} request. Write the spec to the specs/ directory as spec.md following Spec Kit conventions. Be concrete about scope, user stories, and acceptance criteria. For greenfield projects, include platform, stack, and UI/UX sections.${profileBlock(ctx)}\n\nRequest:\n"""\n${ctx.request}\n"""${knowledge}`,
       { cwd: ctx.cwd, timeoutMs: 15 * 60_000 },
     );
 

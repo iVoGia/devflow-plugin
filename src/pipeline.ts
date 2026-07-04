@@ -44,6 +44,8 @@ export interface RunOptions {
   only?: string[];
   /** Print planned stages without executing. */
   dryRun?: boolean;
+  /** Ask clarifying questions in the terminal during intake. */
+  interactive?: boolean;
 }
 
 const RUNS_SUBDIR = path.join(".devflow", "runs");
@@ -127,6 +129,10 @@ export async function runPipeline(opts: RunOptions): Promise<RunState> {
   let state: RunState;
   if (opts.resume) {
     state = await loadState(cwd, opts.resume);
+    if (opts.request.trim()) {
+      state.request = opts.request.trim();
+      logger.info(`${pc.dim("Updated request:")} ${state.request}`);
+    }
     logger.info(`Resuming run ${pc.bold(state.id)}`);
   } else {
     state = {
@@ -146,6 +152,7 @@ export async function runPipeline(opts: RunOptions): Promise<RunState> {
   logger.heading(`DevFlow run ${state.id}`);
   logger.info(`${pc.dim("Request:")} ${state.request}`);
   logger.info(`${pc.dim("Agent:  ")} ${agent.label}`);
+  if (opts.interactive) logger.info(`${pc.dim("Mode:   ")} interactive intake`);
   logger.info(`${pc.dim("Stages: ")} ${plan.map((s) => s.id).join(" → ")}`);
 
   if (opts.dryRun) {
@@ -183,6 +190,7 @@ export async function runPipeline(opts: RunOptions): Promise<RunState> {
       agent,
       runDir,
       shared: state.shared,
+      interactive: opts.interactive,
     };
 
     // Preflight
@@ -216,6 +224,9 @@ export async function runPipeline(opts: RunOptions): Promise<RunState> {
     record.artifacts = result.artifacts;
     record.finishedAt = new Date().toISOString();
     if (result.data) Object.assign(state.shared, result.data);
+    if (result.data?.enrichedRequest && typeof result.data.enrichedRequest === "string") {
+      state.request = result.data.enrichedRequest;
+    }
     upsertStage(state, record);
     await saveState(cwd, state);
 
@@ -228,10 +239,12 @@ export async function runPipeline(opts: RunOptions): Promise<RunState> {
       const gate = result.gate ?? true;
       if (gate) {
         logger.divider();
-        logger.error(
-          `Pipeline halted at "${stage.id}". Fix the issue and resume with: ` +
-            `devflow run --resume ${state.id}`,
-        );
+        const resumeHint =
+          stage.id === "intake"
+            ? `devflow run --resume ${state.id} --from intake --interactive\n` +
+              `    or: devflow run --resume ${state.id} --from intake "full request with your answers"`
+            : `devflow run --resume ${state.id}`;
+        logger.error(`Pipeline halted at "${stage.id}". Resume with:\n  ${resumeHint}`);
         printSummary(state);
         return state;
       }

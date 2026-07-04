@@ -21,6 +21,10 @@ const configSchema = z.object({
     .object({
       intent: stageBase.default({ enabled: true }),
       harness: stageBase.default({ enabled: true }),
+      discover: stageBase.default({ enabled: true }),
+      intake: stageBase
+        .extend({ gate: z.boolean().default(true) })
+        .default({ enabled: true, gate: true }),
       speckit: stageBase
         .extend({
           /** Passed to `specify init --integration <value>`. */
@@ -52,10 +56,12 @@ const configSchema = z.object({
       e2e: stageBase
         .extend({
           engine: z.enum(["playwright", "maestro", "none"]).default("none"),
+          /** When engine is none, use repo-profile e2eSuggestion from discover stage. */
+          autoDetect: z.boolean().default(false),
           cmd: z.string().optional(),
           gate: z.boolean().default(true),
         })
-        .default({ enabled: true, engine: "none", gate: true }),
+        .default({ enabled: true, engine: "none", autoDetect: false, gate: true }),
       strix: stageBase
         .extend({
           mode: z.enum(["quick", "deep"]).default("quick"),

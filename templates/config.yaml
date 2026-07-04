@@ -11,6 +11,11 @@ stages:
     enabled: true
   harness:
     enabled: true
+  discover:
+    enabled: true
+  intake:
+    enabled: true
+    gate: true
   speckit:
     enabled: true
     integration: claude # passed to `specify init --ai <value>`
@@ -36,6 +41,7 @@ stages:
   e2e:
     enabled: true
     engine: none # playwright | maestro | none
+    autoDetect: true # use discover stage suggestion when engine is none
     cmd: "" # override, e.g. "npx playwright test"
     gate: true
   strix:

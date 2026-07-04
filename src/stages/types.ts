@@ -1,5 +1,6 @@
 import type { AgentBackend } from "../agent/index.js";
 import type { DevflowConfig } from "../config.js";
+import type { RepoProfile } from "../util/stack-detect.js";
 
 export type IntentType = "feature" | "bug" | "refactor";
 
@@ -36,12 +37,19 @@ export interface StageContext {
   runDir: string;
   /** Shared, growing bag of data accumulated across stages. */
   shared: SharedState;
+  /** When true, intake stage asks clarifying questions in the terminal. */
+  interactive?: boolean;
 }
 
 export interface SharedState {
   intent?: IntentType;
   intentRationale?: string;
   knowledge?: string;
+  repoProfile?: RepoProfile;
+  intakeReady?: boolean;
+  intakeAnswers?: Record<string, string>;
+  intakeQuestions?: string[];
+  enrichedRequest?: string;
   specPath?: string;
   planPath?: string;
   contextDocs?: string;

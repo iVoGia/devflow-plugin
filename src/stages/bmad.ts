@@ -56,9 +56,15 @@ export const bmadStage: Stage = {
     const specNote = ctx.shared.specPath
       ? `Base the plan on the approved specification at ${ctx.shared.specPath}.`
       : "";
+    const knowledge = ctx.shared.knowledge
+      ? `\n\nProject knowledge:\n${ctx.shared.knowledge}`
+      : "";
+    const profile = ctx.shared.repoProfile
+      ? `\n\nRepository profile:\n${JSON.stringify(ctx.shared.repoProfile, null, 2)}`
+      : "";
     logger.step("Generating plan + task breakdown via agent");
     await ctx.agent.prompt(
-      `Using the BMAD-METHOD workflow (Analyst -> PM -> Architect -> Scrum Master), produce a planning document and a task breakdown for this work. ${specNote}\n\nWrite outputs to docs/ (e.g. docs/prd.md, docs/architecture.md) and a task list to docs/tasks.md (or the BMAD stories/ directory). Each task must be small, ordered, and independently verifiable.\n\nRequest:\n"""\n${ctx.request}\n"""`,
+      `Using the BMAD-METHOD workflow (Analyst -> PM -> Architect -> Scrum Master), produce a planning document and a task breakdown for this work. ${specNote}${profile}${knowledge}\n\nWrite outputs to docs/ (e.g. docs/prd.md, docs/architecture.md) and a task list to docs/tasks.md (or the BMAD stories/ directory). Each task must be small, ordered, and independently verifiable. Match the detected platform and stack.\n\nRequest:\n"""\n${ctx.request}\n"""`,
       { cwd: ctx.cwd, timeoutMs: 15 * 60_000 },
     );
 

@@ -17,6 +17,8 @@ at the PR.
 User Request
   → Intent Classification (feature | bug | refactor)
   → Repository Harness (Business / Architecture / Coding Rules)
+  → Repo Discovery (auto-detect web/mobile/stack for existing projects)
+  → Intake / Clarify (Analyst — gate or --interactive Q&A for vague requests)
   → SpecKit (specification)
   → Requirement Validation (gate)
   → BMAD (planning + task split)
@@ -92,10 +94,13 @@ Or directly from the terminal:
 
 ```bash
 devflow run "Add a dark mode toggle to settings"
+devflow run --interactive "Làm app todo"   # Analyst asks questions in terminal first
 devflow run --dry-run "..."          # show planned stages only
-devflow run --only intent,speckit "..."
+devflow run --only intent,discover,intake "..."
 devflow run --from coding "..."       # start partway through
 devflow run --resume latest           # resume after fixing a gate failure
+devflow run --resume <id> --from intake --interactive   # answer intake questions
+devflow run --resume <id> --from intake "full request with answers"
 devflow merge --squash                # opt-in merge after review
 ```
 

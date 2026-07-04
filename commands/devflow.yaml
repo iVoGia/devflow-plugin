@@ -22,7 +22,13 @@ body: |
 
   While it runs:
   - Stream the CLI output to the user.
-  - If a gate fails, the CLI halts and prints a `devflow run --resume <id>` command. Report the failure and the resume command; do not try to bypass the gate.
+  - If the pipeline halts at **intake**, the request needs more detail. Either:
+    - Ask the user the printed questions in chat, then resume with an enriched request, OR
+    - Tell the user to run: `devflow run --resume <id> --from intake --interactive`
+  - If another gate fails, report the failure and the resume command; do not bypass gates.
   - When it finishes, share the PR URL and the run summary.
+
+  For vague new-project requests, prefer running with interactive intake first:
+  `devflow run --interactive "<REQUEST>"`
 
   Do not re-implement the pipeline yourself; just invoke the CLI and relay results.

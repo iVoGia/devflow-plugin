@@ -15,7 +15,7 @@ program
   .description(
     "DevFlow: a workflow-as-plugin orchestrator that runs a full spec-driven pipeline and exposes it as slash commands for Cursor, Claude Code and GitHub Copilot.",
   )
-  .version("0.2.0")
+  .version("0.2.1")
   .option("-v, --verbose", "verbose logging", false)
   .hook("preAction", (thisCommand) => {
     if (thisCommand.opts().verbose) setVerbose(true);
@@ -37,6 +37,11 @@ program
   .option("--only <stages>", "comma-separated stage ids to run")
   .option("--resume [id]", "resume a previous run (id or 'latest')")
   .option("--dry-run", "print the planned stages without executing", false)
+  .option(
+    "-i, --interactive",
+    "ask clarifying questions in the terminal during intake (Analyst role)",
+    false,
+  )
   .action(
     async (
       requestParts: string[],
@@ -45,6 +50,7 @@ program
         only?: string;
         resume?: string | boolean;
         dryRun?: boolean;
+        interactive?: boolean;
       },
     ) => {
       const cwd = process.cwd();
@@ -68,6 +74,7 @@ program
         only: opts.only ? opts.only.split(",").map((s) => s.trim()) : undefined,
         resume,
         dryRun: opts.dryRun,
+        interactive: opts.interactive,
       });
 
       const failed = state.stages.some((s) => s.status === "failed");

@@ -1,7 +1,7 @@
 {
   "name": "devflow",
-  "version": "0.2.0",
-  "description": "DevFlow - a workflow-as-plugin CLI orchestrator that runs a full spec-driven development pipeline (Intent -> SpecKit -> BMAD -> Coding -> Tests -> Security -> PR) and exposes it as slash commands for Cursor, Claude Code and GitHub Copilot.",
+  "version": "0.2.1",
+  "description": "DevFlow - spec-driven pipeline with repo discovery, intake clarification, SpecKit, BMAD, coding, tests, security, and PR. Slash commands for Cursor, Claude Code, Copilot, and VS Code extension.",
   "type": "module",
   "bin": {
     "devflow": "./dist/cli.js"

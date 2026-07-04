@@ -58,6 +58,10 @@ export const codingStage: Stage = {
     if (ctx.shared.planPath) parts.push(`Follow the task plan at ${ctx.shared.planPath}.`);
     if (ctx.shared.knowledge)
       parts.push(`Respect these project rules:\n${ctx.shared.knowledge}`);
+    if (ctx.shared.repoProfile)
+      parts.push(
+        `Repository profile (detected stack — follow it):\n${JSON.stringify(ctx.shared.repoProfile, null, 2)}`,
+      );
     if (ctx.shared.contextDocs)
       parts.push(`Reference material:\n${ctx.shared.contextDocs.slice(0, 8000)}`);
     parts.push(
