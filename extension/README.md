@@ -1,5 +1,7 @@
 # DevFlow for VS Code
 
+![DevFlow overview](https://raw.githubusercontent.com/iVoGia/devflow-plugin/main/docs/overview.png)
+
 Run the **DevFlow** spec-driven development pipeline directly from VS Code or
 Cursor. This extension is a thin launcher around the `devflow` CLI: it starts the
 workflow in an integrated terminal and shows each run's stages in a tree view.

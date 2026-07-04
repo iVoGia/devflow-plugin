@@ -1,5 +1,7 @@
 # DevFlow
 
+![DevFlow overview](docs/overview.png)
+
 DevFlow is a **workflow-as-plugin**: a single CLI orchestrator that runs a full
 spec-driven development pipeline for any request (an idea, a bug, a feature, or a
 whole new project) and exposes it as one slash command across **Cursor**,
