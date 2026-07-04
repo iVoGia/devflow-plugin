@@ -15,7 +15,7 @@ program
   .description(
     "DevFlow: a workflow-as-plugin orchestrator that runs a full spec-driven pipeline and exposes it as slash commands for Cursor, Claude Code and GitHub Copilot.",
   )
-  .version("0.1.0")
+  .version("0.2.0")
   .option("-v, --verbose", "verbose logging", false)
   .hook("preAction", (thisCommand) => {
     if (thisCommand.opts().verbose) setVerbose(true);

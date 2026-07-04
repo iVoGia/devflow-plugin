@@ -97,6 +97,24 @@ devflow run --resume latest           # resume after fixing a gate failure
 devflow merge --squash                # opt-in merge after review
 ```
 
+## VS Code / Cursor extension
+
+An optional GUI wrapper lives in [`extension/`](extension/). It adds
+Command Palette entries (**DevFlow: Start Workflow / Initialize / Doctor /
+Resume**), an Activity Bar **Runs** tree view showing each run's 12 stages with
+live status, and a status bar summary. It bundles the CLI, so no separate install
+is needed inside the editor.
+
+```bash
+cd extension
+npm install
+npm run package        # builds a .vsix
+code --install-extension devflow-plugin-*.vsix
+```
+
+Publishing to the VS Code Marketplace and Open VSX (for Cursor) is documented in
+[extension/PUBLISHING.md](extension/PUBLISHING.md).
+
 ## Prerequisites & environment
 
 `devflow doctor` verifies these based on your config:

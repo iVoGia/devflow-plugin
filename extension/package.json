@@ -1,0 +1,147 @@
+{
+  "name": "devflow-plugin",
+  "displayName": "DevFlow",
+  "description": "Run the DevFlow spec-driven pipeline (intent -> spec -> plan -> code -> tests -> security -> PR) from VS Code / Cursor.",
+  "version": "0.2.0",
+  "publisher": "ivogia",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other",
+    "SCM Providers"
+  ],
+  "keywords": [
+    "devflow",
+    "workflow",
+    "ai",
+    "spec-driven",
+    "orchestrator"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iVoGia/devflow-plugin.git"
+  },
+  "homepage": "https://github.com/iVoGia/devflow-plugin",
+  "bugs": {
+    "url": "https://github.com/iVoGia/devflow-plugin/issues"
+  },
+  "galleryBanner": {
+    "color": "#0B1021",
+    "theme": "dark"
+  },
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "workspaceContains:.devflow/config.yaml"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "devflow.start",
+        "title": "Start Workflow",
+        "category": "DevFlow",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "devflow.init",
+        "title": "Initialize",
+        "category": "DevFlow",
+        "icon": "$(add)"
+      },
+      {
+        "command": "devflow.doctor",
+        "title": "Doctor",
+        "category": "DevFlow",
+        "icon": "$(pulse)"
+      },
+      {
+        "command": "devflow.resume",
+        "title": "Resume Last Run",
+        "category": "DevFlow",
+        "icon": "$(debug-continue)"
+      },
+      {
+        "command": "devflow.refreshRuns",
+        "title": "Refresh Runs",
+        "category": "DevFlow",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "devflow.openRun",
+        "title": "Open Run Report",
+        "category": "DevFlow"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "devflow",
+          "title": "DevFlow",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "devflow": [
+        {
+          "id": "devflowRuns",
+          "name": "Runs"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "devflowRuns",
+        "contents": "No DevFlow runs yet.\n[Start Workflow](command:devflow.start)\n[Initialize DevFlow](command:devflow.init)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "devflow.start",
+          "when": "view == devflowRuns",
+          "group": "navigation@1"
+        },
+        {
+          "command": "devflow.refreshRuns",
+          "when": "view == devflowRuns",
+          "group": "navigation@2"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "DevFlow",
+      "properties": {
+        "devflow.cliPath": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path to the devflow CLI. Leave empty to use the bundled CLI (or a global 'devflow' on PATH)."
+        },
+        "devflow.useBundledCli": {
+          "type": "boolean",
+          "default": true,
+          "description": "Prefer the CLI bundled with this extension over a globally installed 'devflow'."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "bundle-cli": "node scripts/bundle-cli.mjs",
+    "build": "node esbuild.mjs",
+    "typecheck": "tsc --noEmit",
+    "vscode:prepublish": "npm run bundle-cli && node esbuild.mjs --production",
+    "package": "vsce package --no-dependencies",
+    "publish:vsce": "vsce publish --no-dependencies",
+    "publish:ovsx": "ovsx publish --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.2.1",
+    "esbuild": "^0.24.2",
+    "ovsx": "^0.10.1",
+    "typescript": "^5.7.3"
+  }
+}

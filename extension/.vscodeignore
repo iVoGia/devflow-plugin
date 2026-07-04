@@ -1,0 +1,14 @@
+# Source and build config (only ship the bundled dist + media)
+src/**
+scripts/**
+esbuild.mjs
+tsconfig.json
+.gitignore
+**/*.map
+**/*.ts
+
+# Dev artifacts
+node_modules/**
+.vscode-test/**
+
+# Keep: dist/**, media/**, README.md, CHANGELOG.md, LICENSE, package.json
