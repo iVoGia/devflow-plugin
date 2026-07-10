@@ -302,6 +302,15 @@ function printSummary(state: RunState): void {
     const extra = s.message ? pc.dim(` — ${s.message}`) : "";
     logger.info(`  ${statusIcon(s.status)} ${s.title}${extra}`);
   }
+  if (state.shared.rootCauseSummary) {
+    logger.heading("Root cause (5 Whys)");
+    for (const line of state.shared.rootCauseSummary.split("\n")) {
+      logger.info(`  ${line}`);
+    }
+    if (state.shared.rootCausePath) {
+      logger.info(`  ${pc.dim(`Details: ${state.shared.rootCausePath}`)}`);
+    }
+  }
   if (state.shared.prUrl) {
     logger.info(`\n${pc.bold("PR:")} ${state.shared.prUrl}`);
   }

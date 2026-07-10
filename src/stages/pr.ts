@@ -124,7 +124,7 @@ async function buildPrBody(ctx: StageContext, base: string): Promise<string> {
 - ${ctx.request.split("\n")[0]}
 
 ## Root cause (5 Whys)
-- See ${ctx.shared.rootCausePath ?? "docs/rootcause.md"}
+${ctx.shared.rootCauseSummary ? ctx.shared.rootCauseSummary.split("\n").map((l) => `- ${l}`).join("\n") : `- See ${ctx.shared.rootCausePath ?? "docs/rootcause.md"}`}
 
 ## Test plan
 - [ ] Review the changes on this branch
@@ -142,7 +142,11 @@ async function buildPrBody(ctx: StageContext, base: string): Promise<string> {
 
   try {
     const fixbugNote = isFixbugMode(ctx)
-      ? ` Include a "## Root cause (5 Whys)" section summarizing the root cause from ${ctx.shared.rootCausePath ?? "docs/rootcause.md"}.`
+      ? ` Include a "## Root cause (5 Whys)" section (keep it to 2-3 bullets).${
+          ctx.shared.rootCauseSummary
+            ? ` Root cause summary:\n${ctx.shared.rootCauseSummary}`
+            : ` Summarize from ${ctx.shared.rootCausePath ?? "docs/rootcause.md"}.`
+        }`
       : "";
     const summary = await ctx.agent.prompt(
       `Write a concise GitHub PR description in Markdown with exactly these sections: "## Summary" (1-3 bullets on WHAT changed and WHY) and "## Test plan" (a checklist a reviewer can follow).${fixbugNote} Base it on this diff. Output only the Markdown.\n\nOriginal request:\n${ctx.request}\n\nDiff (truncated):\n${diff.slice(0, 12000)}`,

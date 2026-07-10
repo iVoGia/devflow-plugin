@@ -48,6 +48,7 @@ export interface SharedState {
   intentRationale?: string;
   workflowMode?: WorkflowMode;
   rootCausePath?: string;
+  rootCauseSummary?: string;
   knowledge?: string;
   repoProfile?: RepoProfile;
   intakeReady?: boolean;

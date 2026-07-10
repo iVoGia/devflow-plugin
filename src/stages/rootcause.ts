@@ -2,7 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { logger } from "../logger.js";
 import { exists } from "../util/fsx.js";
-import { FIVE_WHYS_PROMPT } from "../workflow/fixbug.js";
+import { extractRootCauseSummary, FIVE_WHYS_PROMPT } from "../workflow/fixbug.js";
 import type { Stage } from "./types.js";
 
 const ROOTCAUSE_TEMPLATE = `# Root Cause Analysis
@@ -51,7 +51,7 @@ Investigate this bug report and produce a root cause analysis document in Markdo
 ## Fix strategy (address root, not symptom)
 ## Verification / regression
 
-Be specific to this codebase and stack. Inspect relevant files if needed.${profile}${knowledge}
+Be specific to this codebase and stack. Inspect relevant files if needed. Keep the whole document short — follow the conciseness rules above.${profile}${knowledge}
 
 Bug report:
 """
@@ -76,12 +76,13 @@ Output ONLY the Markdown document, no preamble.`,
     await fs.writeFile(destPath, content, "utf8");
 
     const relPath = path.relative(ctx.cwd, destPath);
+    const summary = extractRootCauseSummary(content);
 
     return {
       status: "passed",
       message: `Root cause analysis written: ${relPath}`,
       artifacts: [relPath],
-      data: { rootCausePath: relPath },
+      data: { rootCausePath: relPath, rootCauseSummary: summary || undefined },
     };
   },
 };
