@@ -16,4 +16,6 @@ body: |
 
   This scaffolds `.devflow/config.yaml`, the knowledge harness under `.devflow/knowledge/` (business.md, architecture.md, coding-rules.md), and regenerates the slash commands for Cursor, Claude Code and GitHub Copilot.
 
-  After it runs, tell the user to fill in the three knowledge files and to run `devflow doctor` to verify prerequisites (agent CLI, specify, bmad, Docker + strix, gh, and the required API keys).
+  After it runs, DevFlow will **auto-install** missing workflow tools (SpecKit, Strix, gh, Maestro when configured) and report any failures or manual steps (agent CLI, Docker, `gh auth login`, env keys).
+
+  Tell the user to fill in the three knowledge files. If anything could not be installed automatically, show the error and suggest `devflow doctor`.

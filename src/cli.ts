@@ -16,7 +16,7 @@ program
   .description(
     "DevFlow: a workflow-as-plugin orchestrator that runs a full spec-driven pipeline and exposes it as slash commands for Cursor, Claude Code and GitHub Copilot.",
   )
-  .version("0.2.3")
+  .version("0.2.4")
   .option("-v, --verbose", "verbose logging", false)
   .hook("preAction", (thisCommand) => {
     if (thisCommand.opts().verbose) setVerbose(true);
@@ -26,8 +26,9 @@ program
   .command("init")
   .description("Scaffold DevFlow into the current project")
   .option("-f, --force", "overwrite existing files", false)
-  .action(async (opts: { force?: boolean }) => {
-    await init(process.cwd(), { force: opts.force });
+  .option("--skip-install", "do not auto-install missing dependencies", false)
+  .action(async (opts: { force?: boolean; skipInstall?: boolean }) => {
+    await init(process.cwd(), { force: opts.force, skipInstall: opts.skipInstall });
   });
 
 program

@@ -1,13 +1,16 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { generateAll } from "../generators/index.js";
-import { DEVFLOW_DIR } from "./config.js";
+import { loadConfig, DEVFLOW_DIR } from "./config.js";
+import { bootstrapDependencies } from "./deps/bootstrap.js";
 import { logger, pc } from "./logger.js";
 import { exists } from "./util/fsx.js";
 import { commandsDir, templatesDir } from "./util/paths.js";
 
 export interface InitOptions {
   force?: boolean;
+  /** Skip auto-installing missing workflow dependencies. */
+  skipInstall?: boolean;
 }
 
 /**
@@ -53,11 +56,20 @@ export async function init(cwd: string, opts: InitOptions = {}): Promise<void> {
 
   logger.divider();
   logger.success("DevFlow initialized.");
+
+  logger.step("Checking workflow dependencies…");
+  const config = await loadConfig(cwd);
+  const { allRequiredOk } = await bootstrapDependencies(config, {
+    skipInstall: opts.skipInstall,
+  });
+
+  logger.divider();
   logger.info(
     `Next:\n` +
       `  1. Fill in ${pc.cyan(".devflow/knowledge/*.md")}\n` +
-      `  2. Set env keys (see README): CONTEXT7_API_KEY, STRIX_LLM, LLM_API_KEY\n` +
-      `  3. Run ${pc.cyan("devflow doctor")} to verify prerequisites\n` +
-      `  4. Use ${pc.cyan("/devflow <request>")} in Cursor / Claude / Copilot`,
+      (allRequiredOk
+        ? `  2. Use ${pc.cyan("/devflow <request>")} or ${pc.cyan("/devflow-fixbug <bug>")} in your editor\n`
+        : `  2. Fix remaining dependencies (see above), then ${pc.cyan("devflow doctor")}\n` +
+          `  3. Use ${pc.cyan("/devflow <request>")} in Cursor / Claude / Copilot`),
   );
 }
