@@ -12,6 +12,7 @@ import {
   push,
   stageAll,
 } from "../util/git.js";
+import { isFixbugMode } from "../workflow/fixbug.js";
 import type { Stage, StageContext } from "./types.js";
 
 /**
@@ -118,7 +119,18 @@ function commitSubject(ctx: StageContext): string {
  */
 async function buildPrBody(ctx: StageContext, base: string): Promise<string> {
   const diff = await diffAgainst(ctx.cwd, base).catch(() => "");
-  const fallback = `## Summary
+  const fallback = isFixbugMode(ctx)
+    ? `## Summary
+- ${ctx.request.split("\n")[0]}
+
+## Root cause (5 Whys)
+- See ${ctx.shared.rootCausePath ?? "docs/rootcause.md"}
+
+## Test plan
+- [ ] Review the changes on this branch
+- [ ] Run the test suite locally
+- [ ] Verify the regression test covers the root cause`
+    : `## Summary
 - ${ctx.request.split("\n")[0]}
 
 ## Test plan
@@ -129,8 +141,11 @@ async function buildPrBody(ctx: StageContext, base: string): Promise<string> {
   if (!diff.trim()) return fallback;
 
   try {
+    const fixbugNote = isFixbugMode(ctx)
+      ? ` Include a "## Root cause (5 Whys)" section summarizing the root cause from ${ctx.shared.rootCausePath ?? "docs/rootcause.md"}.`
+      : "";
     const summary = await ctx.agent.prompt(
-      `Write a concise GitHub PR description in Markdown with exactly two sections: "## Summary" (1-3 bullets on WHAT changed and WHY) and "## Test plan" (a checklist a reviewer can follow). Base it on this diff. Output only the Markdown.\n\nOriginal request:\n${ctx.request}\n\nDiff (truncated):\n${diff.slice(0, 12000)}`,
+      `Write a concise GitHub PR description in Markdown with exactly these sections: "## Summary" (1-3 bullets on WHAT changed and WHY) and "## Test plan" (a checklist a reviewer can follow).${fixbugNote} Base it on this diff. Output only the Markdown.\n\nOriginal request:\n${ctx.request}\n\nDiff (truncated):\n${diff.slice(0, 12000)}`,
       { cwd: ctx.cwd, timeoutMs: 3 * 60_000 },
     );
     return summary.trim() || fallback;

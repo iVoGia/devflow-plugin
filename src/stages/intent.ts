@@ -14,6 +14,13 @@ export const intentStage: Stage = {
   enabled: (c) => c.stages.intent.enabled,
 
   async run(ctx) {
+    if (ctx.shared.intent) {
+      return {
+        status: "skipped",
+        message: `Intent preset: ${ctx.shared.intent} (${ctx.shared.intentRationale ?? "no LLM classification"})`,
+      };
+    }
+
     const response = await ctx.agent.prompt(
       `Request:\n"""\n${ctx.request}\n"""`,
       { system: SYSTEM, cwd: ctx.cwd, timeoutMs: 2 * 60_000 },

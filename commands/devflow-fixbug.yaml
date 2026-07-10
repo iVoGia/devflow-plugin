@@ -1,0 +1,37 @@
+name: devflow-fixbug
+description: Fix a bug with 5 Whys root-cause analysis (no intent classification, shorter pipeline).
+argument_hint: "<bug report: symptom, steps to reproduce, expected vs actual>"
+run:
+  cli: devflow run
+  args: "--mode fixbug $ARGUMENTS"
+  capture_output: false
+allowed_shell:
+  - "devflow:*"
+  - "git:*"
+  - "gh:*"
+body: |
+  You are the DevFlow fixbug command layer. The user's bug report is provided as the argument.
+
+  Run the fixbug pipeline by executing this terminal command from the project root:
+
+  ```
+  devflow run --mode fixbug "<REQUEST>"
+  ```
+
+  Replace `<REQUEST>` with the user's full bug report. This mode:
+  - Skips intent classification (no LLM token spent classifying bug vs feature).
+  - Skips intake, speckit, validate, and bmad (shorter pipeline).
+  - Runs 5 Whys (なぜなぜ分析) root cause analysis before coding.
+  - Fixes the root cause, not the symptom.
+
+  A good bug report includes: symptom, steps to reproduce, expected vs actual behavior, and environment (OS, version).
+
+  While it runs:
+  - Stream the CLI output to the user.
+  - If a gate fails (static, e2e, etc.), report the failure and the resume command; do not bypass gates.
+  - When it finishes, share the PR URL and the run summary.
+
+  Resume after a gate failure:
+  `devflow run --resume <id> --from <stage>`
+
+  Do not re-implement the pipeline yourself; just invoke the CLI and relay results.

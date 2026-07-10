@@ -13,6 +13,8 @@ stages:
     enabled: true
   discover:
     enabled: true
+  rootcause:
+    enabled: true
   intake:
     enabled: true
     gate: true
@@ -41,7 +43,6 @@ stages:
   e2e:
     enabled: true
     engine: none # playwright | maestro | none
-    autoDetect: true # use discover stage suggestion when engine is none
     cmd: "" # override, e.g. "npx playwright test"
     gate: true
   strix:

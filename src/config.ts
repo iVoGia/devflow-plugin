@@ -22,6 +22,7 @@ const configSchema = z.object({
       intent: stageBase.default({ enabled: true }),
       harness: stageBase.default({ enabled: true }),
       discover: stageBase.default({ enabled: true }),
+      rootcause: stageBase.default({ enabled: true }),
       intake: stageBase
         .extend({ gate: z.boolean().default(true) })
         .default({ enabled: true, gate: true }),

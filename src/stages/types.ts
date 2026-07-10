@@ -41,9 +41,13 @@ export interface StageContext {
   interactive?: boolean;
 }
 
+export type WorkflowMode = "default" | "fixbug";
+
 export interface SharedState {
   intent?: IntentType;
   intentRationale?: string;
+  workflowMode?: WorkflowMode;
+  rootCausePath?: string;
   knowledge?: string;
   repoProfile?: RepoProfile;
   intakeReady?: boolean;

@@ -5,6 +5,7 @@ import { doctor } from "./doctor.js";
 import { init } from "./init.js";
 import { logger, setVerbose } from "./logger.js";
 import { runPipeline } from "./pipeline.js";
+import type { WorkflowMode } from "./workflow/fixbug.js";
 import { run as execRun } from "./util/exec.js";
 import { commandsDir } from "./util/paths.js";
 
@@ -15,7 +16,7 @@ program
   .description(
     "DevFlow: a workflow-as-plugin orchestrator that runs a full spec-driven pipeline and exposes it as slash commands for Cursor, Claude Code and GitHub Copilot.",
   )
-  .version("0.2.1")
+  .version("0.2.2")
   .option("-v, --verbose", "verbose logging", false)
   .hook("preAction", (thisCommand) => {
     if (thisCommand.opts().verbose) setVerbose(true);
@@ -42,6 +43,11 @@ program
     "ask clarifying questions in the terminal during intake (Analyst role)",
     false,
   )
+  .option(
+    "--mode <mode>",
+    "workflow mode: default | fixbug (shorter bug-fix pipeline with 5 Whys)",
+    "default",
+  )
   .action(
     async (
       requestParts: string[],
@@ -51,6 +57,7 @@ program
         resume?: string | boolean;
         dryRun?: boolean;
         interactive?: boolean;
+        mode?: string;
       },
     ) => {
       const cwd = process.cwd();
@@ -59,6 +66,14 @@ program
 
       const resume =
         opts.resume === true ? "latest" : (opts.resume as string | undefined);
+
+      const modeRaw = (opts.mode ?? "default").toLowerCase();
+      if (modeRaw !== "default" && modeRaw !== "fixbug") {
+        logger.error(`Unknown --mode: ${opts.mode}. Use "default" or "fixbug".`);
+        process.exitCode = 1;
+        return;
+      }
+      const mode = modeRaw as WorkflowMode;
 
       if (!request && !resume) {
         logger.error('Provide a request, e.g. devflow run "Add dark mode toggle"');
@@ -75,6 +90,7 @@ program
         resume,
         dryRun: opts.dryRun,
         interactive: opts.interactive,
+        mode,
       });
 
       const failed = state.stages.some((s) => s.status === "failed");

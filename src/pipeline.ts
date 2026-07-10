@@ -11,6 +11,11 @@ import type {
   StageResult,
   StageStatus,
 } from "./stages/types.js";
+import {
+  FIXBUG_STAGE_IDS,
+  presetFixbugShared,
+  type WorkflowMode,
+} from "./workflow/fixbug.js";
 
 export interface StageRecord {
   id: string;
@@ -28,6 +33,7 @@ export interface RunState {
   createdAt: string;
   updatedAt: string;
   agent: string;
+  mode?: WorkflowMode;
   shared: SharedState;
   stages: StageRecord[];
 }
@@ -46,6 +52,8 @@ export interface RunOptions {
   dryRun?: boolean;
   /** Ask clarifying questions in the terminal during intake. */
   interactive?: boolean;
+  /** Workflow mode: default (full pipeline) or fixbug (shorter bug-fix path). */
+  mode?: WorkflowMode;
 }
 
 const RUNS_SUBDIR = path.join(".devflow", "runs");
@@ -91,12 +99,28 @@ async function latestRunId(cwd: string): Promise<string | null> {
   }
 }
 
+function resolveMode(opts: RunOptions, state?: RunState): WorkflowMode {
+  if (opts.mode && opts.mode !== "default") return opts.mode;
+  if (state?.mode) return state.mode;
+  if (state?.shared.workflowMode === "fixbug") return "fixbug";
+  return "default";
+}
+
 function planStages(
   stages: Stage[],
   config: DevflowConfig,
   opts: RunOptions,
+  mode: WorkflowMode,
 ): Stage[] {
   let selected = stages.filter((s) => s.enabled(config));
+
+  if (mode === "fixbug") {
+    const allow = new Set<string>(FIXBUG_STAGE_IDS);
+    selected = selected.filter((s) => allow.has(s.id));
+  } else {
+    selected = selected.filter((s) => s.id !== "rootcause");
+  }
+
   if (opts.only && opts.only.length > 0) {
     const set = new Set(opts.only);
     selected = selected.filter((s) => set.has(s.id));
@@ -141,18 +165,26 @@ export async function runPipeline(opts: RunOptions): Promise<RunState> {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       agent: agent.name,
+      mode: opts.mode ?? "default",
       shared: {},
       stages: [],
     };
+    if (opts.mode === "fixbug") {
+      Object.assign(state.shared, presetFixbugShared());
+    }
   }
 
+  const mode = resolveMode(opts, state);
+  state.mode = mode;
+
   const runDir = path.join(runsRoot(cwd), state.id);
-  const plan = planStages(allStages, config, opts);
+  const plan = planStages(allStages, config, opts, mode);
 
   logger.heading(`DevFlow run ${state.id}`);
   logger.info(`${pc.dim("Request:")} ${state.request}`);
   logger.info(`${pc.dim("Agent:  ")} ${agent.label}`);
-  if (opts.interactive) logger.info(`${pc.dim("Mode:   ")} interactive intake`);
+  if (mode === "fixbug") logger.info(`${pc.dim("Mode:   ")} fixbug (5 Whys, no intent classification)`);
+  else if (opts.interactive) logger.info(`${pc.dim("Mode:   ")} interactive intake`);
   logger.info(`${pc.dim("Stages: ")} ${plan.map((s) => s.id).join(" → ")}`);
 
   if (opts.dryRun) {

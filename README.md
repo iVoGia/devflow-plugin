@@ -73,7 +73,9 @@ This scaffolds:
 - `.devflow/config.yaml` — pipeline configuration
 - `.devflow/knowledge/{business,architecture,coding-rules}.md` — the harness
 - `.cursor/commands/devflow.md` — Cursor slash command
+- `.cursor/commands/devflow-fixbug.md` — Cursor slash command for bug fixes
 - `.claude/commands/devflow.md` + `.claude/skills/devflow/SKILL.md` — Claude Code
+- `.claude/commands/devflow-fixbug.md` + `.claude/skills/devflow-fixbug/SKILL.md`
 - `.github/prompts/devflow.prompt.md` — GitHub Copilot
 
 Then fill in the three knowledge files and verify your environment:
@@ -86,9 +88,9 @@ devflow doctor
 
 From your editor, once initialized:
 
-- **Cursor**: type `/devflow` and pass your request.
-- **Claude Code**: type `/devflow <request>`.
-- **GitHub Copilot** (VS Code): type `/devflow` in Chat (agent mode).
+- **Cursor**: type `/devflow` and pass your request, or `/devflow-fixbug` for bugs.
+- **Claude Code**: type `/devflow <request>` or `/devflow-fixbug <bug report>`.
+- **GitHub Copilot** (VS Code): type `/devflow` or `/devflow-fixbug` in Chat (agent mode).
 
 Or directly from the terminal:
 
@@ -101,8 +103,40 @@ devflow run --from coding "..."       # start partway through
 devflow run --resume latest           # resume after fixing a gate failure
 devflow run --resume <id> --from intake --interactive   # answer intake questions
 devflow run --resume <id> --from intake "full request with answers"
+devflow run --mode fixbug "Login crash on Save tap — expected home screen"
 devflow merge --squash                # opt-in merge after review
 ```
+
+### `/devflow` vs `/devflow-fixbug`
+
+| | `/devflow` | `/devflow-fixbug` |
+| --- | --- | --- |
+| Intent classification | LLM classifies feature / bug / refactor | **Skipped** — preset as bug (saves tokens) |
+| Intake / SpecKit / BMAD | Full spec-driven path | **Skipped** — shorter pipeline |
+| Root cause | Optional in spec | **5 Whys** (なぜなぜ分析) before coding |
+| Best for | New features, ideas, refactors | Bug fixes on existing code |
+
+**Fixbug pipeline:**
+
+```
+Bug Report
+  → Repository Harness
+  → Repo Discovery
+  → Root Cause Analysis (5 Whys) → docs/rootcause.md
+  → Context7 + Existing Code
+  → Coding Agent (fix root cause + regression test)
+  → Static Validation → E2E → Strix → Docs → PR
+```
+
+**Good bug report example:**
+
+```
+App crash when tapping Save on login screen.
+Steps: open app → enter credentials → tap Save.
+Expected: navigate to home. Actual: SIGABRT on iOS 17, Flutter 3.22.
+```
+
+From your editor: `/devflow-fixbug <bug report>` (Cursor / Claude / Copilot).
 
 ## VS Code / Cursor extension
 
@@ -174,6 +208,7 @@ src/
   doctor.ts init.ts
   agent/          # claude | cursor | api backends
   stages/         # one file per pipeline stage
+  workflow/       # fixbug mode helpers (5 Whys, stage presets)
   util/           # exec, git, fs/glob, which, paths
 commands/         # single source of truth (YAML) for slash commands
 generators/       # emit Cursor / Claude / Copilot / SKILL.md

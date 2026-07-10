@@ -7,6 +7,7 @@ import {
   isGitRepo,
   slugify,
 } from "../util/git.js";
+import { FIVE_WHYS_PROMPT, isFixbugMode } from "../workflow/fixbug.js";
 import type { Stage } from "./types.js";
 
 /**
@@ -64,6 +65,20 @@ export const codingStage: Stage = {
       );
     if (ctx.shared.contextDocs)
       parts.push(`Reference material:\n${ctx.shared.contextDocs.slice(0, 8000)}`);
+
+    if (isFixbugMode(ctx)) {
+      parts.push(FIVE_WHYS_PROMPT);
+      if (ctx.shared.rootCausePath) {
+        parts.push(
+          `Follow the root cause analysis at ${ctx.shared.rootCausePath}. Fix the ROOT CAUSE, not the symptom. Add a regression test that would have caught this bug.`,
+        );
+      } else {
+        parts.push(
+          "Fix the ROOT CAUSE, not the symptom. Add a regression test that would have caught this bug.",
+        );
+      }
+    }
+
     parts.push(
       "Make all necessary file edits directly in the repository. Add or update tests. Do not open a PR; that is a later step.",
     );

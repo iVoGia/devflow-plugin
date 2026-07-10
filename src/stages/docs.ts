@@ -1,4 +1,5 @@
 import { logger } from "../logger.js";
+import { isFixbugMode } from "../workflow/fixbug.js";
 import type { Stage } from "./types.js";
 
 /**
@@ -21,10 +22,21 @@ export const docsStage: Stage = {
 
   async run(ctx) {
     logger.step("Updating documentation via agent");
-    await ctx.agent.prompt(
-      `Update the project's documentation to reflect the change just implemented for this request. Update README, relevant docs/, and a CHANGELOG entry if one exists. Only touch documentation; do not change source behavior.\n\nRequest:\n"""\n${ctx.request}\n"""`,
-      { cwd: ctx.cwd, timeoutMs: 10 * 60_000 },
-    );
+
+    const prompt = isFixbugMode(ctx)
+      ? `This was a bug fix using 5 Whys root cause analysis. Update documentation minimally:
+- Add a CHANGELOG entry describing the fix and root cause (if CHANGELOG exists).
+- Add a brief troubleshooting note if relevant (docs/ or README).
+Do NOT rewrite the entire README. Only touch documentation; do not change source behavior.
+
+Root cause analysis: ${ctx.shared.rootCausePath ?? "docs/rootcause.md"}
+Bug report:
+"""
+${ctx.request}
+"""`
+      : `Update the project's documentation to reflect the change just implemented for this request. Update README, relevant docs/, and a CHANGELOG entry if one exists. Only touch documentation; do not change source behavior.\n\nRequest:\n"""\n${ctx.request}\n"""`;
+
+    await ctx.agent.prompt(prompt, { cwd: ctx.cwd, timeoutMs: 10 * 60_000 });
 
     return { status: "passed", message: "Documentation updated." };
   },

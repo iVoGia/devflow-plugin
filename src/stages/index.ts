@@ -8,6 +8,7 @@ import { harnessStage } from "./harness.js";
 import { intakeStage } from "./intake.js";
 import { intentStage } from "./intent.js";
 import { prStage } from "./pr.js";
+import { rootcauseStage } from "./rootcause.js";
 import { speckitStage } from "./speckit.js";
 import { staticStage } from "./static.js";
 import { strixStage } from "./strix.js";
@@ -20,6 +21,7 @@ export const allStages: Stage[] = [
   harnessStage,
   discoverStage,
   intakeStage,
+  rootcauseStage,
   speckitStage,
   validateStage,
   bmadStage,
