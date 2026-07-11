@@ -87,6 +87,7 @@ export const codingStage: Stage = {
     const output = await ctx.agent.prompt(parts.join("\n\n"), {
       cwd: ctx.cwd,
       timeoutMs: 30 * 60_000,
+      stageId: "coding",
     });
 
     await fs.writeFile(

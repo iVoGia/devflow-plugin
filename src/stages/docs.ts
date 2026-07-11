@@ -36,7 +36,11 @@ ${ctx.request}
 """`
       : `Update the project's documentation to reflect the change just implemented for this request. Update README, relevant docs/, and a CHANGELOG entry if one exists. Only touch documentation; do not change source behavior.\n\nRequest:\n"""\n${ctx.request}\n"""`;
 
-    await ctx.agent.prompt(prompt, { cwd: ctx.cwd, timeoutMs: 10 * 60_000 });
+    await ctx.agent.prompt(prompt, {
+      cwd: ctx.cwd,
+      timeoutMs: 10 * 60_000,
+      stageId: "docs",
+    });
 
     return { status: "passed", message: "Documentation updated." };
   },

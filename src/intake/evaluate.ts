@@ -126,7 +126,7 @@ export async function evaluateIntake(
     try {
       const response = await agent.prompt(
         `Request:\n"""\n${input.request}\n"""\n\nRepo profile:\n${profileJson}${answersBlock}\n\nKnowledge:\n${(input.knowledge ?? "").slice(0, 4000)}`,
-        { system: ANALYST_SYSTEM, timeoutMs: 2 * 60_000 },
+        { system: ANALYST_SYSTEM, timeoutMs: 2 * 60_000, stageId: "intake" },
       );
       const parsed = extractJson<IntakeVerdict>(response);
       if (parsed && typeof parsed.ready === "boolean") {

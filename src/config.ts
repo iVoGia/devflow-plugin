@@ -95,6 +95,24 @@ const configSchema = z.object({
       cursor: z.string().default("cursor-agent"),
     })
     .default({ claude: "claude", cursor: "cursor-agent" }),
+
+  /** Caveman terse-output mode (https://github.com/JuliusBrussee/caveman). */
+  caveman: z
+    .object({
+      enabled: z.boolean().default(true),
+      level: z.enum(["lite", "full", "ultra"]).default("lite"),
+      compressKnowledge: z.boolean().default(true),
+      /** Pipeline stage ids that receive the caveman system prompt. */
+      stages: z
+        .array(z.string())
+        .default(["intent", "intake", "context", "pr"]),
+    })
+    .default({
+      enabled: true,
+      level: "lite",
+      compressKnowledge: true,
+      stages: ["intent", "intake", "context", "pr"],
+    }),
 });
 
 export type DevflowConfig = z.infer<typeof configSchema>;

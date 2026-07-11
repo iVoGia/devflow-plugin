@@ -65,7 +65,7 @@ export const bmadStage: Stage = {
     logger.step("Generating plan + task breakdown via agent");
     await ctx.agent.prompt(
       `Using the BMAD-METHOD workflow (Analyst -> PM -> Architect -> Scrum Master), produce a planning document and a task breakdown for this work. ${specNote}${profile}${knowledge}\n\nWrite outputs to docs/ (e.g. docs/prd.md, docs/architecture.md) and a task list to docs/tasks.md (or the BMAD stories/ directory). Each task must be small, ordered, and independently verifiable. Match the detected platform and stack.\n\nRequest:\n"""\n${ctx.request}\n"""`,
-      { cwd: ctx.cwd, timeoutMs: 15 * 60_000 },
+      { cwd: ctx.cwd, timeoutMs: 15 * 60_000, stageId: "bmad" },
     );
 
     const planPath = await findFirst(ctx.cwd, [

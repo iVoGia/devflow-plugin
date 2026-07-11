@@ -1,7 +1,10 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { generateAll } from "../generators/index.js";
+import { compressKnowledgeDir } from "./caveman/compress.js";
+import { installCavemanSkill } from "./caveman/install.js";
 import { loadConfig, DEVFLOW_DIR } from "./config.js";
+import { createAgent } from "./agent/index.js";
 import { bootstrapDependencies } from "./deps/bootstrap.js";
 import { logger, pc } from "./logger.js";
 import { exists } from "./util/fsx.js";
@@ -63,13 +66,20 @@ export async function init(cwd: string, opts: InitOptions = {}): Promise<void> {
     skipInstall: opts.skipInstall,
   });
 
+  if (config.caveman.enabled) {
+    logger.step("Setting up Caveman token optimization…");
+    await installCavemanSkill(cwd);
+    const agent = createAgent(config);
+    await compressKnowledgeDir(cwd, config, agent);
+  }
+
   logger.divider();
-  logger.info(
-    `Next:\n` +
-      `  1. Fill in ${pc.cyan(".devflow/knowledge/*.md")}\n` +
-      (allRequiredOk
-        ? `  2. Use ${pc.cyan("/devflow <request>")} or ${pc.cyan("/devflow-fixbug <bug>")} in your editor\n`
-        : `  2. Fix remaining dependencies (see above), then ${pc.cyan("devflow doctor")}\n` +
-          `  3. Use ${pc.cyan("/devflow <request>")} in Cursor / Claude / Copilot`),
-  );
+  const cavemanHint = config.caveman.enabled
+    ? `  2. Run ${pc.cyan("devflow caveman compress")} after filling knowledge (saves input tokens)\n`
+    : "";
+  const workflowHint = allRequiredOk
+    ? `  ${config.caveman.enabled ? "3" : "2"}. Use ${pc.cyan("/devflow <request>")} or ${pc.cyan("/devflow-fixbug <bug>")} in your editor\n`
+    : `  ${config.caveman.enabled ? "3" : "2"}. Fix remaining dependencies (see above), then ${pc.cyan("devflow doctor")}\n` +
+      `  ${config.caveman.enabled ? "4" : "3"}. Use ${pc.cyan("/devflow <request>")} in Cursor / Claude / Copilot`;
+  logger.info(`Next:\n` + `  1. Fill in ${pc.cyan(".devflow/knowledge/*.md")}\n` + cavemanHint + workflowHint);
 }

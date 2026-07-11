@@ -74,7 +74,7 @@ export const speckitStage: Stage = {
     logger.step("Authoring specification via agent");
     await ctx.agent.prompt(
       `Using the Spec Kit workflow (the /speckit.specify command and its templates), create a complete specification for the following ${ctx.shared.intent ?? "feature"} request. Write the spec to the specs/ directory as spec.md following Spec Kit conventions. Be concrete about scope, user stories, and acceptance criteria. For greenfield projects, include platform, stack, and UI/UX sections.${profileBlock(ctx)}\n\nRequest:\n"""\n${ctx.request}\n"""${knowledge}`,
-      { cwd: ctx.cwd, timeoutMs: 15 * 60_000 },
+      { cwd: ctx.cwd, timeoutMs: 15 * 60_000, stageId: "speckit" },
     );
 
     // Locate the produced spec.

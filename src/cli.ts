@@ -1,4 +1,6 @@
 import { Command } from "commander";
+import { createAgent } from "./agent/index.js";
+import { compressKnowledgeDir } from "./caveman/compress.js";
 import { generateAll } from "../generators/index.js";
 import { loadConfig } from "./config.js";
 import { doctor } from "./doctor.js";
@@ -16,7 +18,7 @@ program
   .description(
     "DevFlow: a workflow-as-plugin orchestrator that runs a full spec-driven pipeline and exposes it as slash commands for Cursor, Claude Code and GitHub Copilot.",
   )
-  .version("0.2.4")
+  .version("0.2.5")
   .option("-v, --verbose", "verbose logging", false)
   .hook("preAction", (thisCommand) => {
     if (thisCommand.opts().verbose) setVerbose(true);
@@ -114,6 +116,32 @@ program
     const written = await generateAll(process.cwd(), commandsDir());
     logger.success(`Generated ${written.length} command file(s).`);
     for (const p of written) logger.info(`  ${p}`);
+  });
+
+const cavemanCmd = program
+  .command("caveman")
+  .description("Caveman token optimization (https://github.com/JuliusBrussee/caveman)");
+
+cavemanCmd
+  .command("compress")
+  .description("Compress .devflow/knowledge/*.md to reduce input tokens")
+  .action(async () => {
+    const cwd = process.cwd();
+    const config = await loadConfig(cwd);
+    if (!config.caveman.enabled) {
+      logger.warn("caveman.enabled is false in .devflow/config.yaml");
+      process.exitCode = 1;
+      return;
+    }
+    logger.heading("Caveman — compress knowledge harness");
+    const agent = createAgent(config);
+    const results = await compressKnowledgeDir(cwd, config, agent);
+    const compressed = results.filter((r) => r.ok && !r.skipped).length;
+    if (compressed === 0) {
+      logger.info("No files compressed (templates empty or already short). Fill knowledge files first.");
+    } else {
+      logger.success(`Compressed ${compressed} file(s). Backups: *.original.md`);
+    }
   });
 
 program

@@ -40,7 +40,7 @@ export const validateStage: Stage = {
 
     const response = await ctx.agent.prompt(
       `Specification to validate:\n"""\n${spec}\n"""`,
-      { system: SYSTEM, cwd: ctx.cwd, timeoutMs: 3 * 60_000 },
+      { system: SYSTEM, cwd: ctx.cwd, timeoutMs: 3 * 60_000, stageId: "validate" },
     );
     const verdict = extractJson<{
       ready?: boolean;

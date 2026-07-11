@@ -151,11 +151,35 @@ devflow run --resume latest               # continue after gate failure
 devflow run --resume <id> --from coding   # restart from a stage
 devflow merge --squash                    # merge PR after review
 devflow generate                          # regenerate slash commands after CLI upgrade
+devflow caveman compress                  # compress knowledge harness (input tokens)
 ```
+
+#### Caveman token optimization
+
+DevFlow integrates [Caveman](https://github.com/JuliusBrussee/caveman) **selectively** — terse output on chatty stages, normal prose on artifact stages (specs, plans, code).
+
+| Stage | Caveman (default) | Why |
+| --- | --- | --- |
+| intent, intake, context, pr | **Yes** | Shorter LLM replies (~8–10% output savings on agentic runs) |
+| speckit, bmad, rootcause, coding, docs, validate | **No** | Keep full-quality artifacts and JSON |
+
+Configure in `.devflow/config.yaml`:
+
+```yaml
+caveman:
+  enabled: true
+  level: lite          # lite | full | ultra
+  compressKnowledge: true
+  stages: [intent, intake, context, pr]
+```
+
+- **`devflow init`** installs `.claude/skills/caveman/` (for `/caveman` in IDE chat) and compresses knowledge if files are long enough.
+- After filling `.devflow/knowledge/*.md`, run **`devflow caveman compress`** — backs up to `*.original.md`, reduces **input** tokens on every later run (biggest win when harness is long).
+- Trade-off: caveman stages add ~0.5–1k input tokens per call for the system prompt.
 
 #### After upgrading DevFlow on another machine
 
-1. Update CLI: `npm install -g git+https://github.com/iVoGia/devflow-plugin.git#v0.2.2`
+1. Update CLI: `npm install -g git+https://github.com/iVoGia/devflow-plugin.git#v0.2.5`
 2. In each project: `devflow generate` (picks up new slash commands like `/devflow-fixbug`)
 3. Your `.devflow/knowledge/*.md` and app source **do not** need to change
 
@@ -316,11 +340,35 @@ devflow run --resume latest               # tiếp run sau gate fail
 devflow run --resume <id> --from coding   # chạy lại từ stage cụ thể
 devflow merge --squash                    # merge PR sau review
 devflow generate                          # tạo lại slash commands sau khi update DevFlow
+devflow caveman compress                  # nén knowledge harness (tiết kiệm input token)
 ```
+
+#### Caveman — tối ưu token
+
+DevFlow tích hợp [Caveman](https://github.com/JuliusBrussee/caveman) **có chọn lọc** — output ngắn ở stage chatty, giữ văn bản đầy đủ ở stage tạo artifact (spec, plan, code).
+
+| Stage | Caveman (mặc định) | Lý do |
+| --- | --- | --- |
+| intent, intake, context, pr | **Có** | LLM trả lời ngắn hơn (~8–10% output trên agentic run) |
+| speckit, bmad, rootcause, coding, docs, validate | **Không** | Giữ chất lượng artifact và JSON |
+
+Cấu hình trong `.devflow/config.yaml`:
+
+```yaml
+caveman:
+  enabled: true
+  level: lite          # lite | full | ultra
+  compressKnowledge: true
+  stages: [intent, intake, context, pr]
+```
+
+- **`devflow init`** cài `.claude/skills/caveman/` (slash `/caveman` trong IDE) và nén knowledge nếu file đủ dài.
+- Sau khi điền `.devflow/knowledge/*.md`, chạy **`devflow caveman compress`** — backup `*.original.md`, giảm **input** token mỗi lần chạy pipeline (lợi lớn khi harness dài).
+- Trade-off: stage có caveman thêm ~0.5–1k input token cho system prompt.
 
 #### Sau khi update DevFlow trên máy khác
 
-1. Update CLI: `npm install -g git+https://github.com/iVoGia/devflow-plugin.git#v0.2.2`
+1. Update CLI: `npm install -g git+https://github.com/iVoGia/devflow-plugin.git#v0.2.5`
 2. Trong từng project: `devflow generate` (có slash command mới như `/devflow-fixbug`)
 3. File `.devflow/knowledge/*.md` và source app **không cần** đổi
 
@@ -374,6 +422,7 @@ See `.devflow/config.yaml` (from `devflow init`):
 - `stages.static.{unit,integration,lint,format}` — empty = auto-detect from `package.json`
 - `stages.e2e.engine: playwright | maestro | none`
 - `stages.pr.{base,draft,autoMerge}`
+- `caveman.{enabled,level,compressKnowledge,stages}` — selective terse output; see Caveman section above
 
 ### Development
 

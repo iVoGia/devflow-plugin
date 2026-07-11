@@ -61,6 +61,18 @@ export async function doctor(cwd: string): Promise<boolean> {
     if (!c.ok && c.required) allRequiredOk = false;
   }
 
+  if (config.caveman.enabled) {
+    logger.info(
+      `  ${pc.green("✓")} Caveman — ${pc.dim(`level ${config.caveman.level}, stages: ${config.caveman.stages.join(", ")}`)}`,
+    );
+    logger.info(
+      `    ${pc.dim("compressKnowledge:")} ${config.caveman.compressKnowledge ? "on" : "off"} — run ${pc.cyan("devflow caveman compress")} after filling harness`,
+    );
+    logger.info(
+      `    ${pc.dim("Note: ~0.5–1k extra input per caveman stage; harness compress saves input every run")}`,
+    );
+  }
+
   logger.divider();
   if (allRequiredOk) {
     logger.success("All required checks passed.");

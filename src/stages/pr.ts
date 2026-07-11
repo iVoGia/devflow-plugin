@@ -150,7 +150,7 @@ ${ctx.shared.rootCauseSummary ? ctx.shared.rootCauseSummary.split("\n").map((l) 
       : "";
     const summary = await ctx.agent.prompt(
       `Write a concise GitHub PR description in Markdown with exactly these sections: "## Summary" (1-3 bullets on WHAT changed and WHY) and "## Test plan" (a checklist a reviewer can follow).${fixbugNote} Base it on this diff. Output only the Markdown.\n\nOriginal request:\n${ctx.request}\n\nDiff (truncated):\n${diff.slice(0, 12000)}`,
-      { cwd: ctx.cwd, timeoutMs: 3 * 60_000 },
+      { cwd: ctx.cwd, timeoutMs: 3 * 60_000, stageId: "pr" },
     );
     return summary.trim() || fallback;
   } catch {

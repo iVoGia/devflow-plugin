@@ -61,6 +61,17 @@ context7:
   enabled: true
   baseUrl: https://context7.com/api/v2
 
+# Caveman token optimization (https://github.com/JuliusBrussee/caveman)
+caveman:
+  enabled: true
+  level: lite # lite | full | ultra
+  compressKnowledge: true
+  stages:
+    - intent
+    - intake
+    - context
+    - pr
+
 agentCommand:
   claude: claude
   cursor: cursor-agent

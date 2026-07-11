@@ -1,4 +1,5 @@
 import type { DevflowConfig } from "../config.js";
+import { CavemanAgentWrapper } from "../caveman/wrapper.js";
 import { ApiBackend } from "./api.js";
 import { ClaudeBackend } from "./claude.js";
 import { CursorBackend } from "./cursor.js";
@@ -7,15 +8,22 @@ import type { AgentBackend } from "./types.js";
 export type { AgentBackend, AgentPromptOptions } from "./types.js";
 
 export function createAgent(config: DevflowConfig): AgentBackend {
+  let base: AgentBackend;
   switch (config.agent) {
     case "cursor":
-      return new CursorBackend(config.agentCommand.cursor);
+      base = new CursorBackend(config.agentCommand.cursor);
+      break;
     case "api":
-      return new ApiBackend();
+      base = new ApiBackend();
+      break;
     case "claude":
     default:
-      return new ClaudeBackend(config.agentCommand.claude);
+      base = new ClaudeBackend(config.agentCommand.claude);
   }
+  if (config.caveman.enabled) {
+    return new CavemanAgentWrapper(base, config.caveman);
+  }
+  return base;
 }
 
 /**

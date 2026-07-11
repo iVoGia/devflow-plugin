@@ -23,7 +23,7 @@ export const intentStage: Stage = {
 
     const response = await ctx.agent.prompt(
       `Request:\n"""\n${ctx.request}\n"""`,
-      { system: SYSTEM, cwd: ctx.cwd, timeoutMs: 2 * 60_000 },
+      { system: SYSTEM, cwd: ctx.cwd, timeoutMs: 2 * 60_000, stageId: "intent" },
     );
 
     const parsed = extractJson<{ type?: string; rationale?: string }>(response);

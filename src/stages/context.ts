@@ -33,7 +33,7 @@ export const contextStage: Stage = {
     logger.step("Identifying relevant existing files");
     const filesResponse = await ctx.agent.prompt(
       `List up to 15 existing files in this repository that are most relevant to implementing the request below. Respond with ONLY a JSON array of repo-relative paths.\n\nRequest:\n"""\n${ctx.request}\n"""`,
-      { cwd: ctx.cwd, timeoutMs: 3 * 60_000 },
+      { cwd: ctx.cwd, timeoutMs: 3 * 60_000, stageId: "context" },
     );
     const relevant = (extractJson<string[]>(filesResponse) ?? []).filter(
       (p) => typeof p === "string",

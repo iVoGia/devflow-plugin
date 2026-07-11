@@ -59,7 +59,7 @@ ${ctx.request}
 """
 
 Output ONLY the Markdown document, no preamble.`,
-      { cwd: ctx.cwd, timeoutMs: 10 * 60_000 },
+      { cwd: ctx.cwd, timeoutMs: 10 * 60_000, stageId: "rootcause" },
     );
 
     const content = response.trim() || ROOTCAUSE_TEMPLATE;

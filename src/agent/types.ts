@@ -5,6 +5,8 @@ export interface AgentPromptOptions {
   system?: string;
   /** Milliseconds before the agent call is aborted. */
   timeoutMs?: number;
+  /** Pipeline stage id — used by CavemanAgentWrapper for selective injection. */
+  stageId?: string;
 }
 
 export interface AgentBackend {
